@@ -52,6 +52,16 @@ jobs:
         run: npm run test:smoke
         continue-on-error: true
 
+      - name: Fetch Previous Report History (for trend graphs)
+        if: always()
+        continue-on-error: true
+        run: |
+          mkdir -p allure-results/history
+          curl -fsSL "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/history/history.json" -o allure-results/history/history.json || echo "No previous history found (first run) — continuing without it."
+          curl -fsSL "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/history/categories-trend.json" -o allure-results/history/categories-trend.json || true
+          curl -fsSL "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/history/duration-trend.json" -o allure-results/history/duration-trend.json || true
+          curl -fsSL "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/history/retries-trend.json" -o allure-results/history/retries-trend.json || true
+
       - name: Generate Allure Report
         if: always()
         run: npm run allure:generate
